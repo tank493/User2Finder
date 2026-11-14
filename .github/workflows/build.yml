@@ -45,26 +45,13 @@ jobs:
                   applicationId "com.example.user2finder"
                   minSdk 24
                   targetSdk 34
-                  versionCode 9
-                  versionName "2.4"
+                  versionCode 10
+                  versionName "2.5"
               }
           }
           END
-          cat > app/src/main/res/values/strings.xml <<'END'
-          <resources><string name="app_name">User2Finder</string></resources>
-          END
-          cat > app/src/main/AndroidManifest.xml <<'END'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <application android:label="User2Finder">
-              <activity android:name=".MainActivity" android:exported="true">
-                <intent-filter>
-                  <action android:name="android.intent.action.MAIN"/>
-                  <category android:name="android.intent.category.LAUNCHER"/>
-                </intent-filter>
-              </activity>
-            </application>
-          </manifest>
-          END
+          echo '<resources><string name="app_name">User2Finder</string></resources>' > app/src/main/res/values/strings.xml
+          echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="User2Finder"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
           cat > app/src/main/java/com/example/app/MainActivity.java <<'END'
           package com.example.app;
           import android.app.Activity;
@@ -75,49 +62,4 @@ jobs:
           public class MainActivity extends Activity {
               protected void onCreate(Bundle b) {
                   super.onCreate(b);
-                  LinearLayout layout = new LinearLayout(this);
-                  layout.setOrientation(LinearLayout.VERTICAL);
-                  layout.setPadding(40, 60, 40, 40);
-                  TextView t = new TextView(this);
-                  t.setText("User2Finder v2.4");
-                  t.setTextSize(18);
-                  layout.addView(t);
-                  Button btn1 = new Button(this);
-                  btn1.setText("1. Meniu Useri Ascuns");
-                  layout.addView(btn1);
-                  Button btn2 = new Button(this);
-                  btn2.setText("2. Setari Useri");
-                  layout.addView(btn2);
-                  final TextView res = new TextView(this);
-                  layout.addView(res);
-                  btn1.setOnClickListener(new View.OnClickListener() {
-                      public void onClick(View v) {
-                          try {
-                              Intent i = new Intent();
-                              i.setClassName("com.android.settings", "com.android.settings.Settings$UserSettingsActivity");
-                              startActivity(i);
-                          } catch (Exception e) {
-                              try {
-                                  startActivity(new Intent("android.settings.USER_SETTINGS"));
-                              } catch (Exception e2) {
-                                  res.setText("Blocat");
-                              }
-                          }
-                      }
-                  });
-                  btn2.setOnClickListener(new View.OnClickListener() {
-                      public void onClick(View v) {
-                          try {
-                              Intent i = new Intent();
-                              i.setAction("android.settings.USERS_SETTINGS");
-                              startActivity(i);
-                          } catch (Exception e) {
-                              res.setText("Nu se poate");
-                          }
-                      }
-                  });
-                  ScrollView sv = new ScrollView(MainActivity.this);
-                  sv.addView(layout);
-                  setContentView(sv);
-              }
-         
+                  LinearLayout layout = new Linear
