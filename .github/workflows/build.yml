@@ -17,20 +17,8 @@ jobs:
           mkdir -p app/src/main/java/com/example/app
           mkdir -p app/src/main/res/values
           cat > settings.gradle <<'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) repositories { google(); mavenCentral() } }
           include ':app'
           EOF
           cat > build.gradle <<'EOF'
@@ -45,40 +33,9 @@ jobs:
                   applicationId "com.example.user2finder"
                   minSdk 24
                   targetSdk 34
-                  versionCode 5
-                  versionName "2.1"
+                  versionCode 6
+                  versionName "2.2"
               }
               compileOptions {
                   sourceCompatibility JavaVersion.VERSION_17
                   targetCompatibility JavaVersion.VERSION_17
-              }
-          }
-          dependencies {}
-          EOF
-          cat > app/src/main/res/values/strings.xml <<'EOF'
-          <resources><string name="app_name">User2Finder</string></resources>
-          EOF
-          cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-          <application android:label="User2Finder">
-          <activity android:name=".MainActivity" android:exported="true">
-          <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
-          </activity>
-          </application>
-          </manifest>
-          EOF
-          cat > app/src/main/java/com/example/app/MainActivity.java <<'EOF'
-          package com.example.app;
-          import android.app.Activity;
-          import android.os.Bundle;
-          import android.widget.*;
-          import android.content.Intent;
-          import android.view.View;
-          public class MainActivity extends Activity {
-            protected void onCreate(Bundle b){
-              super.onCreate(b);
-              LinearLayout layout = new LinearLayout(this);
-              layout.setOrientation(LinearLayout.VERTICAL);
-              layout.setPadding(40,60,40,40);
-              TextView title = new TextView(this);
-              title.setText("User2Finder v2.1\nDeschide
