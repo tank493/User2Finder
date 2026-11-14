@@ -5,26 +5,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.5'
-      - name: Install Android SDK
+          
+      - name: Create project
         run: |
-          echo "y" | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" || true
-      - name: Create files
-        run: |
+          rm -rf app build .gradle gradle
           mkdir -p app/src/main/java/com/example/app
           mkdir -p app/src/main/res/values
+          
           cat > settings.gradle <<'END'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
+          include ':app'
+          END
+          
+          cat > build.gradle <<'END'
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath 'com.android.tools.build:gradle:8.1.4' }
+          }
+          END
+          
+          cat > app/build.gradle <<'END'
+          apply plugin: 'com.android.application'
+          android {
+              namespace 'com.example.app'
+              compileSdkVersion 33
+              defaultConfig {
+                  applicationId "com.example.user2finder"
+                  minSdkVersion 24
+                  targetSdkVersion 33
+                  versionCode 12
+                  versionName "2.7"
               }
-         
+              buildTypes {
+                  debug { minifyEnabled false }
+              }
+          }
+          END
+          
+          echo '<resources><string name="app_name">User2Finder</string
