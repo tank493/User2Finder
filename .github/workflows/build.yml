@@ -7,33 +7,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.5'
-      - name: Create files
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Build APK with script
         run: |
           mkdir -p app/src/main/java/com/example/app
           mkdir -p app/src/main/res/values
-          cat > settings.gradle <<'END'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
+          cat > settings.gradle <<'E'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
           include ':app'
-          END
-          cat > build.gradle <<'END'
-          plugins { id 'com.android.application' version '8.1.4' apply false }
-          END
-          cat
+          E
+          cat > build.gradle <<'E'
+          plugins { id 'com.android.application'
