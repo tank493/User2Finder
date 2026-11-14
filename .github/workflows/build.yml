@@ -14,5 +14,6 @@ jobs:
           gradle-version: '8.5'
       - name: Build Debug APK
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0      
+          mkdir -p app/src/main/java/com/example/app
+          mkdir -p app/src/main/res/values
+          cat > settings.gradle << 'END
