@@ -9,18 +9,82 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Build Debug APK
         run: |
           mkdir -p app/src/main/java/com/example/app
-          echo "include ':app'" > settings.gradle
-          echo "plugins { id 'com.android.application' version '8.1.0' apply false }" > build.gradle
-          printf "plugins { id 'com.android.application' }\nandroid { namespace 'com.example.app'\n compileSdk 34\n defaultConfig { applicationId 'com.example.app'\n minSdk 24\n targetSdk 34 }\n compileOptions { sourceCompatibility JavaVersion.VERSION_17\n targetCompatibility JavaVersion.VERSION_17 } }\ndependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }" > app/build.gradle
-          printf "<manifest xmlns:android='http://schemas.android.com/apk/res/android'><application android:label='App'><activity android:name='.MainActivity' android:exported='true'><intent-filter><action android:name='android.intent.action.MAIN'/><category android:name='android.intent.category.LAUNCHER'/></intent-filter></activity></application></manifest>" > app/src/main/AndroidManifest.xml
-          printf "package com.example.app;\nimport android.os.Bundle;\nimport androidx.appcompat.app.AppCompatActivity;\nimport android.widget.TextView;\npublic class MainActivity extends AppCompatActivity { protected void onCreate(Bundle b){ super.onCreate(b); TextView tv=new TextView(this); tv.setText(\"Hello\"); setContentView(tv); } }" > app/src/main/java/com/example/app/MainActivity.java
-          gradle wrapper --gradle-version 8.0
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          cat > settings.gradle << 'EOF'
+          pluginManagement {
+            repositories {
+              google()
+              mavenCentral()
+              gradlePluginPortal()
+            }
+          }
+          dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+              google()
+              mavenCentral()
+            }
+          }
+          include ':app'
+          EOF
+          cat > build.gradle << 'EOF'
+          plugins {
+            id 'com.android.application' version '8.1.4' apply false
+          }
+          EOF
+          cat > app/build.gradle << 'EOF'
+          plugins { id 'com.android.application' }
+          android {
+            namespace 'com.example.app'
+            compileSdk 34
+            defaultConfig {
+              applicationId "com.example.app"
+              minSdk 24
+              targetSdk 34
+              versionCode 1
+              versionName "1.0"
+            }
+            compileOptions {
+              sourceCompatibility JavaVersion.VERSION_17
+              targetCompatibility JavaVersion.VERSION_17
+            }
+          }
+          dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+          }
+          EOF
+          cat > app/src/main/AndroidManifest.xml << 'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <application android:label="MyApp">
+              <activity android:name=".MainActivity" android:exported="true">
+                <intent-filter>
+                  <action android:name="android.intent.action.MAIN"/>
+                  <category android:name="android.intent.category.LAUNCHER"/>
+                </intent-filter>
+              </activity>
+            </application>
+          </manifest>
+          EOF
+          cat > app/src/main/java/com/example/app/MainActivity.java << 'EOF'
+          package com.example.app;
+          import android.os.Bundle;
+          import androidx.appcompat.app.AppCompatActivity;
+          import android.widget.TextView;
+          public class MainActivity extends AppCompatActivity {
+            protected void onCreate(Bundle b){
+              super.onCreate(b);
+              TextView tv=new TextView(this);
+              tv.setText("Hello - APK Works!");
+              setContentView(tv);
+            }
+          }
+          EOF
+          gradle :app:assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/*.apk
