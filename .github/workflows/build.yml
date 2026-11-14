@@ -12,11 +12,33 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.5'
-      - name: Build Debug APK
+      - name: Create project files
+        shell: python
         run: |
-          python3 << 'PY'
           import pathlib
           pathlib.Path("app/src/main/java/com/example/app").mkdir(parents=True, exist_ok=True)
           pathlib.Path("app/src/main/res/values").mkdir(parents=True, exist_ok=True)
-          open("settings.gradle","w").write("""
-         
+          pathlib.Path("settings.gradle").write_text("""
+          pluginManagement {
+            repositories {
+              google()
+              mavenCentral()
+              gradlePluginPortal()
+            }
+          }
+          dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+              google()
+              mavenCentral()
+            }
+          }
+          include ':app'
+          """)
+          pathlib.Path("build.gradle").write_text("""
+          plugins {
+            id 'com.android.application' version '8.1.4' apply false
+          }
+          """)
+          pathlib.Path("app/build.gradle").write_text("""
+          plugins { id 'com
