@@ -9,14 +9,20 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew || echo "no gradlew"
-      - name: Build APK
-        run: ./gradlew assembleDebug || ./gradlew :app:assembleDebug
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v3
         with:
-          name: apk
-          path: app/build/outputs/apk/debug/*.apk
+          gradle-version: '8.5'
+      - name: Create Android Project
+        run: |
+          rm -rf app build .gradle
+          mkdir -p app/src/main/java/com/user2finder
+          cat > settings.gradle <<'EOF'
+          include ':app'
+          EOF
+          cat > build.gradle <<'EOF'
+          buildscript {
+            repositories { google(); mavenCentral() }
+            dependencies { classpath 'com.android.tools.build:gradle:8.2.1' }
+          }
+          allprojects { repositories { google(); mavenCentral
