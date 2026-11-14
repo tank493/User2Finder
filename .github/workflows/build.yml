@@ -18,7 +18,7 @@ jobs:
           import pathlib
           pathlib.Path("app/src/main/java/com/example/app").mkdir(parents=True, exist_ok=True)
           pathlib.Path("app/src/main/res/values").mkdir(parents=True, exist_ok=True)
-          pathlib.Path("settings.gradle").write_text("""
+          pathlib.Path("settings.gradle").write_text('''
           pluginManagement {
             repositories {
               google()
@@ -34,11 +34,5 @@ jobs:
             }
           }
           include ':app'
-          """)
-          pathlib.Path("build.gradle").write_text("""
-          plugins {
-            id 'com.android.application' version '8.1.4' apply false
-          }
-          """)
-          pathlib.Path("app/build.gradle").write_text("""
-          plugins { id 'com
+          ''')
+          pathlib
