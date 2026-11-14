@@ -35,4 +35,51 @@ jobs:
           }
           include ':app'
           ''')
-          pathlib
+          pathlib.Path("build.gradle").write_text('''
+          plugins {
+            id 'com.android.application' version '8.1.4' apply false
+          }
+          ''')
+          pathlib.Path("app/build.gradle").write_text('''
+          plugins { id 'com.android.application' }
+          android {
+            namespace 'com.example.app'
+            compileSdk 34
+            defaultConfig {
+              applicationId "com.example.app"
+              minSdk 24
+              targetSdk 34
+              versionCode 1
+              versionName "1.0"
+            }
+            compileOptions {
+              sourceCompatibility JavaVersion.VERSION_17
+              targetCompatibility JavaVersion.VERSION_17
+            }
+          }
+          dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+          }
+          ''')
+          pathlib.Path("app/src/main/res/values/strings.xml").write_text('<resources><string name="app_name">MyApp</string></resources>')
+          pathlib.Path("app/src/main/AndroidManifest.xml").write_text('<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="@string/app_name"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>')
+          pathlib.Path("app/src/main/java/com/example/app/MainActivity.java").write_text('''
+          package com.example.app;
+          import android.os.Bundle;
+          import androidx.appcompat.app.AppCompatActivity;
+          import android.widget.TextView;
+          public class MainActivity extends AppCompatActivity {
+            protected void onCreate(Bundle b){
+              super.onCreate(b);
+              TextView tv=new TextView(this);
+              tv.setText("Hello - APK Works!");
+              setContentView(tv);
+            }
+          }
+          ''')
+      - name: Build Debug APK
+        run: gradle :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
