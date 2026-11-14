@@ -12,8 +12,31 @@ jobs:
           distribution: 'temurin'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+      - name: Create project if missing
+        run: |
+          if [ ! -f app/build.gradle ]; then
+            mkdir -p app/src/main/java/com/example/app
+            echo "include ':app'" > settings.gradle
+            echo "plugins { id 'com.android.application' version '8.1.0' apply false }
+                  task wrapper(type: Wrapper) { gradleVersion = '8.0' }" > build.gradle
+            cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          android { namespace 'com.example.app'; compileSdk 34; defaultConfig { applicationId "com.example.app"; minSdk 24; targetSdk 34; versionCode 1; versionName "1.0" } buildTypes { release { minifyEnabled false } } compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 } }
+          dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }
+          EOF
+            cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="App" android:theme="@android:style/Theme.NoTitleBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
+          EOF
+            cat > app/src/main/java/com/example/app/MainActivity.java <<'EOF'
+          package com.example.app; import android.os.Bundle; import androidx.appcompat.app.AppCompatActivity; import android.widget.TextView; public class MainActivity extends AppCompatActivity { protected void onCreate(Bundle b){ super.onCreate(b); TextView tv=new TextView(this); tv.setText("Hello User2Finder"); setContentView(tv); } }
+          EOF
+          fi
+      - name: Init Gradle Wrapper
+        run: |
+          gradle wrapper --gradle-version 8.0 || true
+          chmod +x gradlew
       - name: Build with Gradle
-        run: chmod +x gradlew && ./gradlew assembleDebug
+        run: ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
