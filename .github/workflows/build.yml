@@ -14,6 +14,9 @@ jobs:
           gradle-version: '8.5'
       - name: Build Debug APK
         run: |
-          mkdir -p app/src/main/java/com/example/app
-          mkdir -p app/src/main/res/values
-          cat > settings.gradle << 'END
+          python3 << 'PY'
+          import pathlib
+          pathlib.Path("app/src/main/java/com/example/app").mkdir(parents=True, exist_ok=True)
+          pathlib.Path("app/src/main/res/values").mkdir(parents=True, exist_ok=True)
+          open("settings.gradle","w").write("""
+         
