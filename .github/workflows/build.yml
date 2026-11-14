@@ -12,30 +12,70 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.5'
-      - name: Create project files
-        run: |
+      - run: |
           mkdir -p app/src/main/java/com/example/app
           mkdir -p app/src/main/res/values
-          cat > settings.gradle <<'EOF'
-          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) repositories { google(); mavenCentral() } }
-          include ':app'
-          EOF
-          cat > build.gradle <<'EOF'
-          plugins { id 'com.android.application' version '8.1.4' apply false }
-          EOF
-          cat > app/build.gradle <<'EOF'
-          plugins { id 'com.android.application' }
-          android {
-              namespace 'com.example.app'
-              compileSdk 34
-              defaultConfig {
-                  applicationId "com.example.user2finder"
-                  minSdk 24
-                  targetSdk 34
-                  versionCode 6
-                  versionName "2.2"
-              }
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
+          echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } } dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) repositories { google(); mavenCentral() } } include ':app'" > settings.gradle
+          echo "plugins { id 'com.android.application' version '8.1.4' apply false }" > build.gradle
+          echo 'plugins { id "com.android.application" } android { namespace "com.example.app" compileSdk 34 defaultConfig { applicationId "com.example.user2finder" minSdk 24 targetSdk 34 versionCode 7 versionName "2.2" } compileOptions { sourceCompatibility JavaVersion.VERSION_17 targetCompatibility JavaVersion.VERSION_17 } } dependencies {}' > app/build.gradle
+          echo '<resources><string name="app_name">User2Finder</string></resources>' > app/src/main/res/values/strings.xml
+          echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="User2Finder"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
+          cat > app/src/main/java/com/example/app/MainActivity.java <<'JAVA'
+          package com.example.app;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.widget.*;
+          import android.content.Intent;
+          import android.view.View;
+          public class MainActivity extends Activity {
+            protected void onCreate(Bundle b){
+              super.onCreate(b);
+              LinearLayout layout = new LinearLayout(this);
+              layout.setOrientation(LinearLayout.VERTICAL);
+              layout.setPadding(40,60,40,40);
+              TextView title = new TextView(this);
+              title.setText("User2Finder v2.2\n");
+              title.setTextSize(20);
+              layout.addView(title);
+              Button btn1 = new Button(this);
+              btn1.setText("1. Deschide Meniu Useri Ascuns");
+              layout.addView(btn1);
+              Button btn2 = new Button(this);
+              btn2.setText("2. Setari Useri");
+              layout.addView(btn2);
+              TextView result = new TextView(this);
+              layout.addView(result);
+              btn1.setOnClickListener(v -> {
+                try {
+                  Intent i = new Intent();
+                  i.setClassName("com.android.settings", "com.android.settings.Settings$UserSettingsActivity");
+                  startActivity(i);
+                } catch (Exception e) {
+                  try {
+                    startActivity(new Intent("android.settings.USER_SETTINGS"));
+                  } catch (Exception e2) {
+                    result.setText("Blocat");
+                  }
+                }
+              });
+              btn2.setOnClickListener(v -> {
+                try {
+                  Intent i = new Intent();
+                  i.setAction("android.settings.USERS_SETTINGS");
+                  startActivity(i);
+                } catch (Exception e) {
+                  result.setText("Nu se poate");
+                }
+              });
+              ScrollView sv = new ScrollView(this);
+              sv.addView(layout);
+              setContentView(sv);
+            }
+          }
+          JAVA
+      - run: gradle :app:assembleDebug --no-daemon
+      - run: find . -name "*.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: app/build/outputs/apk/debug/app-debug.apk
