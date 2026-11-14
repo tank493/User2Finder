@@ -18,18 +18,4 @@ jobs:
           import pathlib
           pathlib.Path("app/src/main/java/com/example/app").mkdir(parents=True, exist_ok=True)
           pathlib.Path("app/src/main/res/values").mkdir(parents=True, exist_ok=True)
-          pathlib.Path("settings.gradle").write_text("""
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
+          pathlib.Path("settings.gradle").write_text('pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
