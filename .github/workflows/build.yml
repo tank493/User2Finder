@@ -57,28 +57,27 @@ jobs:
               targetCompatibility JavaVersion.VERSION_17
             }
           }
-          dependencies {
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-          }
+          dependencies {}
           ''')
           pathlib.Path("app/src/main/res/values/strings.xml").write_text('<resources><string name="app_name">MyApp</string></resources>')
           pathlib.Path("app/src/main/AndroidManifest.xml").write_text('<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="@string/app_name"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>')
           pathlib.Path("app/src/main/java/com/example/app/MainActivity.java").write_text('''
           package com.example.app;
+          import android.app.Activity;
           import android.os.Bundle;
-          import androidx.appcompat.app.AppCompatActivity;
           import android.widget.TextView;
-          public class MainActivity extends AppCompatActivity {
+          public class MainActivity extends Activity {
             protected void onCreate(Bundle b){
               super.onCreate(b);
               TextView tv=new TextView(this);
-              tv.setText("Hello - APK Works!");
+              tv.setText("Hello - APK Works! Fara librarii");
+              tv.setTextSize(24);
               setContentView(tv);
             }
           }
           ''')
       - name: Build Debug APK
-        run: gradle :app:assembleDebug --no-daemon
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: debug-apk
